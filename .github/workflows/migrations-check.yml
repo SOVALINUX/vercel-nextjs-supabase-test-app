@@ -23,11 +23,10 @@ jobs:
         with:
           version: latest
 
-      - name: Start local Supabase
+      - name: Start Supabase and apply migrations + seed
+        # supabase start initialises the DB, runs all migrations, and seeds.
+        # It is the canonical way to verify the full stack from scratch.
         run: supabase start
-
-      - name: Apply full migration stack and seed
-        run: supabase db reset
 
       - name: Stop local Supabase
         if: always()
