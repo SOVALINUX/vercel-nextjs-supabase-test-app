@@ -1,15 +1,14 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.1.0 → 2.0.0
-Bump rationale: MAJOR — removed Definition of Done and Governance sections; replaced
-  duplicated Tech Stack and Domain Model Structure content with references to authoritative
-  sources (CLAUDE.md, domain/README.md).
+Version change: 2.0.0 → 2.1.0
+Bump rationale: MINOR — added Principle VII (Domain as Source of Truth) and updated
+  References table to reflect domain/ as the authoritative entity/bounded-context registry.
 -->
 
 # Replenishment Management System Constitution
 
-**Version**: 2.0.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-04-20
+**Version**: 2.1.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-04-20
 
 ---
 
@@ -49,13 +48,22 @@ pre-commit hooks (lint-staged + prettier). See `.ai/rules/git-conventions.md`.
 Code solves the current requirement only. Server Components by default; `"use client"` only when
 strictly required. See `.ai/rules/nextjs-rules.md`.
 
+### VII. Domain as Source of Truth
+
+`domain/` is the single source of truth for all entity definitions, bounded contexts, and
+business rules. Speckit workflows MUST consult `domain/` before designing data models or
+specifying entities in any feature spec. When a spec introduces or materially changes an entity,
+the corresponding `domain/<subdomain>/entities/<entity>.md` file MUST be created or updated as
+part of that feature's implementation — before or alongside the migration, not after.
+
 ---
 
 ## References
 
-| Topic              | Authoritative source                         |
-| ------------------ | -------------------------------------------- |
-| Tech stack & arch  | `CLAUDE.md`                                  |
-| Domain model & DDD | `domain/README.md`                           |
-| Coding conventions | `.ai/rules/` (typescript, nextjs, git, test) |
-| Permission system  | `domain/core/permission-model.md`            |
+| Topic                    | Authoritative source                         |
+| ------------------------ | -------------------------------------------- |
+| Tech stack & arch        | `CLAUDE.md`                                  |
+| Entity & bounded context | `domain/` (single source of truth)           |
+| Domain conventions       | `domain/README.md`                           |
+| Coding conventions       | `.ai/rules/` (typescript, nextjs, git, test) |
+| Permission system        | `domain/core/permission-model.md`            |

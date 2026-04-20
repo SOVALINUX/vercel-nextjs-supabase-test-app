@@ -1,3 +1,14 @@
+---
+description: Unit and integration testing conventions
+globs:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/__tests__/**"
+alwaysApply: false
+---
+
 # Unit Testing Guidelines
 
 ## Running Tests
@@ -7,13 +18,8 @@
 - Add `--verbose` when debugging failures
 
 ```bash
-# Run tests by pattern
 npx jest --testPathPattern="clients.*test"
-
-# Run all tests in a directory
 npx jest src/lib/clients/
-
-# Check coverage
 npx jest --coverage
 ```
 
@@ -71,12 +77,6 @@ expect(result).toEqual(
 - Use clean `jest.requireActual` pattern — no intermediate variables:
 
 ```typescript
-// ❌
-jest.mock("./lib", () => {
-  const actual = jest.requireActual("./lib");
-  return { ...actual, myFn: jest.fn() };
-});
-
 // ✅
 jest.mock("./lib", () => ({
   ...jest.requireActual<typeof import("./lib")>("./lib"),

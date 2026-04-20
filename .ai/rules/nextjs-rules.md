@@ -1,3 +1,13 @@
+---
+description: Next.js App Router conventions for this project
+globs:
+  - "app/**"
+  - "components/**"
+  - "lib/**"
+  - "proxy.ts"
+alwaysApply: false
+---
+
 # Next.js Rules
 
 ## App Router Conventions
@@ -9,16 +19,17 @@
 
 ## Supabase Client Usage
 
-- **Client Components**: `createBrowserClient` from `@supabase/ssr`
-- **Server Components / Route Handlers**: `createServerClient` with Next.js `cookies()`
+- **Client Components**: `createBrowserClient` from `@supabase/ssr` (`lib/supabase/client.ts`)
+- **Server Components / Route Handlers**: `createServerClient` with Next.js `cookies()` (`lib/supabase/server.ts`)
 - **Admin operations** (skip RLS): server-only `createClient` with `SUPABASE_SERVICE_ROLE_KEY`
 - Never import server-only clients in `"use client"` files
+- Env var is `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (not `ANON_KEY`)
 
 ## Auth / Middleware
 
-- `middleware.ts` at project root refreshes the Supabase session cookie on every request
-- Protected routes redirect to `/login` if session is absent
-- Public routes (login, register, landing) must be listed in the middleware matcher exclusions
+- `proxy.ts` at project root refreshes the Supabase session cookie on every request
+- Protected routes redirect to `/auth/login` if session is absent
+- Public routes must be listed in the middleware matcher exclusions
 
 ## Data Mutations
 

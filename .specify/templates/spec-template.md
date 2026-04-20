@@ -97,8 +97,19 @@ _Example of marking unclear requirements:_
 
 ### Key Entities _(include if feature involves data)_
 
-- **[Entity 1]**: [What it represents, key attributes without implementation]
-- **[Entity 2]**: [What it represents, relationships to other entities]
+<!--
+  IMPORTANT: Before defining any entity here, check domain/ for existing definitions:
+  - Existing entities: domain/<subdomain>/entities/<entity>.md
+  - Bounded context conventions: domain/README.md
+  - Shared audit fields: domain/base-entity.md
+  If an entity already exists in domain/, reference it instead of redefining it.
+  If this spec introduces or materially changes an entity, note it here — the
+  corresponding domain/<subdomain>/entities/<entity>.md MUST be updated as part of
+  this feature's implementation (Principle VII of the Constitution).
+-->
+
+- **[Entity 1]**: [What it represents — link to `domain/<subdomain>/entities/<entity>.md` if exists]
+- **[Entity 2]**: [What it represents, relationships — link to domain file if exists]
 
 ## Success Criteria _(mandatory)_
 

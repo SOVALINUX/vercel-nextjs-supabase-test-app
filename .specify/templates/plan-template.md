@@ -39,6 +39,7 @@ Verify compliance with the [Replenishment Management System Constitution](.speci
 - [ ] **IV. Test-First** — test plan documented; tests written before implementation starts
 - [ ] **V. SDLC** — feature branch follows `feature/<desc>` convention; release notes planned if user-facing
 - [ ] **VI. Simplicity** — no premature abstractions; Server Components used by default
+- [ ] **VII. Domain SOT** — all entities cross-referenced against `domain/`; new/changed entities have a corresponding `domain/<subdomain>/entities/<entity>.md` update planned
 
 ## Project Structure
 
