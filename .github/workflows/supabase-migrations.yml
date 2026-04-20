@@ -12,6 +12,8 @@ jobs:
     name: Deploy to Supabase
     runs-on: ubuntu-latest
     environment: Production
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +31,7 @@ jobs:
           if [ ${#missing[@]} -gt 0 ]; then
             echo "❌ Missing required GitHub secrets: ${missing[*]}"
             echo ""
-            echo "Add them at: Settings → Secrets and variables → Actions"
+            echo "Add them at: Settings → Secrets and variables → Actions → Environments → Production"
             echo "  SUPABASE_ACCESS_TOKEN  — supabase.com → Account → Access Tokens"
             echo "  SUPABASE_PROJECT_ID    — supabase.com → Project → Settings → General (Reference ID)"
             echo "  SUPABASE_DB_PASSWORD   — supabase.com → Project → Settings → Database → Password"

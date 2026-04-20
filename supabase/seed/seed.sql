@@ -1,21 +1,35 @@
 -- Seed data for local development.
--- Requires `supabase start` to have run (which creates dev@example.com via config.toml).
--- Idempotent: safe to re-run after `supabase db reset`.
+-- Run after: `supabase db reset`
+-- Idempotent: safe to re-run.
 
 do $$
 declare
-  dev_user_id   uuid;
+  dev_user_id   uuid := gen_random_uuid();
   role_sa_id    uuid;
   role_am_id    uuid;
 begin
-  -- Resolve the test user created by config.toml
-  select id into dev_user_id from auth.users where email = 'dev@example.com';
-  if dev_user_id is null then
-    raise exception 'dev@example.com not found. Run `supabase start` first.';
-  end if;
+  -- Create the dev test user in auth.users (local only — never runs in production via db push).
+  -- Uses a fixed well-known email so on conflict we resolve by email lookup.
+  insert into auth.users (
+    id, email, encrypted_password, email_confirmed_at,
+    created_at, updated_at, raw_app_meta_data, raw_user_meta_data, aud, role
+  )
+  values (
+    dev_user_id,
+    'dev@example.com',
+    crypt('password123', gen_salt('bf')),
+    now(), now(), now(),
+    '{"provider":"email","providers":["email"]}',
+    '{"name":"Dev User"}',
+    'authenticated',
+    'authenticated'
+  )
+  on conflict (email) do nothing;
 
-  -- Ensure public.users row exists (the auth trigger handles this on real sign-ups,
-  -- but the test user injected by config.toml may need a manual insert in local dev).
+  -- Resolve the user id (handles both first-run and re-run after conflict)
+  select id into dev_user_id from auth.users where email = 'dev@example.com';
+
+  -- Ensure public.users profile row exists
   insert into public.users (id, name, email, _created_by)
   values (dev_user_id, 'Dev User', 'dev@example.com', dev_user_id)
   on conflict (id) do nothing;
@@ -30,12 +44,12 @@ begin
     (dev_user_id, role_am_id)
   on conflict do nothing;
 
-  -- Seed clients (dev user as account manager)
+  -- Seed clients
   insert into public.clients (name, account_manager_id, _created_by) values
-    ('Acme Corp',            dev_user_id, dev_user_id),
-    ('Globex Corporation',   dev_user_id, dev_user_id),
-    ('Initech',              dev_user_id, dev_user_id),
-    ('Umbrella Ltd',         dev_user_id, dev_user_id)
+    ('Acme Corp',          dev_user_id, dev_user_id),
+    ('Globex Corporation', dev_user_id, dev_user_id),
+    ('Initech',            dev_user_id, dev_user_id),
+    ('Umbrella Ltd',       dev_user_id, dev_user_id)
   on conflict do nothing;
 
 end $$;
