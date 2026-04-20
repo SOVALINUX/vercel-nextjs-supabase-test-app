@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - 'supabase/migrations/**'
+      - 'supabase/config.toml'
+      - '.github/workflows/supabase-migrations.yml'
 
 jobs:
   deploy-migrations:
