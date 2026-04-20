@@ -92,3 +92,10 @@ Rules and skills live in `.ai/` — the single source of truth. Claude Code comm
 - **Skills** (`.ai/skills/`): on-demand task procedures, invoke via `/skill-name`
 
 @.ai/README.md
+
+<!-- SPECKIT START -->
+
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+
+<!-- SPECKIT END -->
