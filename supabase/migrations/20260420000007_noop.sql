@@ -1,0 +1,2 @@
+-- no-op migration to verify the CI/CD pipeline end-to-end.
+-- Safe to keep: adds nothing, changes nothing.
