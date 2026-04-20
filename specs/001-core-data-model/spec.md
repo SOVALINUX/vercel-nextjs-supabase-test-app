@@ -139,14 +139,14 @@ verifying the record and its metadata are stored correctly.
 
 Full data model definitions live in the `domain/` folder alongside this spec:
 
-| Entity          | File                                                                     | Summary                                                                                                                       |
-| --------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| **Base Entity** | [/domain/base-entity.md](/domain/base-entity.md)                         | Shared audit fields inherited by all entities (`id`, `created_by`, `created_at`, `updated_by`, `updated_at`).                 |
-| **User**        | [/domain/user/user.md](/domain/user/user.md)                             | Authenticated identity. Has a name, unique email, a single role, and an active status.                                        |
-| **Role**        | [/domain/role/role.md](/domain/role/role.md)                             | Named permission profile. Seeded at launch: `super_admin` and `account_manager`.                                              |
-| **Client**      | [/domain/client/client.md](/domain/client/client.md)                     | Business organisation. Carries a name, link, and references to sales executive, account manager, and account representatives. |
-| **Employee**    | [/domain/employee/employee.md](/domain/employee/employee.md)             | Internal staff member (supply side). Name, email, job title, department, and active status.                                   |
-| **Opportunity** | [/domain/opportunity/opportunity.md](/domain/opportunity/opportunity.md) | Open demand item linked to a client. Title, role needed, quantity, start date, and status enum.                               |
+| Entity          | File                                                                                         | Summary                                                                                                                       |
+| --------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **Base Entity** | [/domain/base-entity.md](/domain/base-entity.md)                                             | Shared audit fields inherited by all entities (`id`, `created_by`, `created_at`, `updated_by`, `updated_at`).                 |
+| **User**        | [/domain/core/entities/user.md](/domain/core/entities/user.md)                               | Authenticated identity. Has a name, unique email, a single role, and an active status.                                        |
+| **Role**        | [/domain/core/entities/role.md](/domain/core/entities/role.md)                               | Named permission profile. Seeded at launch: `super_admin` and `account_manager`.                                              |
+| **Client**      | [/domain/client-management/entities/client.md](/domain/client-management/entities/client.md) | Business organisation. Carries a name, link, and references to sales executive, account manager, and account representatives. |
+| **Employee**    | [/domain/staffing/entities/employee.md](/domain/staffing/entities/employee.md)               | Internal staff member (supply side). Name, email, job title, department, and active status.                                   |
+| **Opportunity** | [/domain/staffing/entities/opportunity.md](/domain/staffing/entities/opportunity.md)         | Open demand item linked to a client. Title, role needed, quantity, start date, and status enum.                               |
 
 ## Success Criteria _(mandatory)_
 

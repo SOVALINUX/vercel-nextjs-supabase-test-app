@@ -32,4 +32,4 @@ deployment; no UI for creating custom roles is required in this iteration.
 
 ## Relationships
 
-- Referenced by [User](/domain/user/user.md) via `role_id`.
+- Referenced by [User](/domain/core/entities/user.md) via `role_id`.

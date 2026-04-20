@@ -31,6 +31,6 @@ executive, account manager, or account representative).
 
 ## Relationships
 
-- `role_id` → [Role](/domain/role/role.md)
-- Referenced by [Client](/domain/client/client.md) as `sales_executive_id`, `account_manager_id`,
+- `role_id` → [Role](/domain/core/entities/role.md)
+- Referenced by [Client](/domain/client-management/entities/client.md) as `sales_executive_id`, `account_manager_id`,
   and in the `client_representatives` join (all optional or role-dependent).

@@ -14,7 +14,7 @@ Single source of truth for AI rules and skills.
 
 **Rules**: git-conventions, typescript-rules, nextjs-rules, unit-testing
 
-**Skills**: do-a-pr, npm-update-dependency, finish-worktree
+**Skills**: do-a-pr, fix-pr-comments, npm-update-dependency, finish-worktree
 
 ## Usage
 
@@ -30,6 +30,7 @@ Single source of truth for AI rules and skills.
 ### Skills (on-demand)
 
 - `do-a-pr` — Create a GitHub pull request
+- `fix-pr-comments` — Address unresolved GitHub PR review threads
 - `npm-update-dependency` — Update npm packages with quality gates
 - `finish-worktree` — Safely clean up a git worktree
 

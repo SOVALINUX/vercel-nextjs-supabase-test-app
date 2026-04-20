@@ -47,5 +47,5 @@ supply-demand matching workflow.
 
 ## Relationships
 
-- `client_id` → [Client](/domain/client/client.md)
+- `client_id` → [Client](/domain/client-management/entities/client.md)
 - Will be referenced by future Staffing / Assignment entities.

@@ -1,31 +1,21 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 0.0.0 (template) → 1.0.0
-Bump rationale: MAJOR — first concrete adoption; all placeholders replaced with project-specific
-  governance.
+Version change: 1.0.0 → 1.1.0
+Bump rationale: MINOR — new "Domain Model Structure" section added to document
+  the DDD bounded-context folder conventions for domain/.
 
-Modified principles:
-  [PRINCIPLE_1_NAME] → I. Spec-Driven Development
-  [PRINCIPLE_2_NAME] → II. Type Safety & Code Quality
-  [PRINCIPLE_3_NAME] → III. Security by Default
-  [PRINCIPLE_4_NAME] → IV. Test-First Quality Gate
-  [PRINCIPLE_5_NAME] → V. Production-Grade SDLC
-  [PRINCIPLE_6_NAME] → VI. Simplicity & No Premature Abstraction (added)
+Modified principles: none
 
 Added sections:
-  - "Tech Stack Constraints" (replaces generic [SECTION_2_NAME])
-  - "Definition of Done" (replaces generic [SECTION_3_NAME])
+  - "Domain Model Structure" under Tech Stack Constraints — defines domain/
+    folder layout, subdomain rules, and cross-reference link conventions.
 
 Removed sections: none
 
 Templates requiring updates:
-  ✅ .specify/templates/plan-template.md — Constitution Check gates now reference
-     named principles (I–VI) and this project's tech stack context.
-  ✅ .specify/templates/spec-template.md — no structural change needed; template
-     already supports DoD via Success Criteria section.
-  ✅ .specify/templates/tasks-template.md — task phases already reflect
-     test-first and security patterns; no structural change needed.
+  ✅ No template changes required; domain structure is reference documentation
+     for spec authors and AI agents.
 
 Deferred TODOs: none
 -->
@@ -135,6 +125,35 @@ scoped packages.
 - `SupplyDemand` — replenishment matching: open demand vs. available supply
 - `Role` / `Permission` — RBAC model
 
+## Domain Model Structure
+
+The `domain/` folder at the project root is the single source of truth for entity and workflow
+definitions. It is organised by **bounded context** following DDD principles:
+
+```
+domain/
+├── README.md              ← folder conventions (authoritative reference)
+├── base-entity.md         ← shared audit fields (id, created_by, created_at, updated_by, updated_at)
+├── core/                  ← identity & access bounded context (User, Role)
+│   ├── entities/
+│   ├── workflows/
+│   └── services/
+├── <subdomain>/           ← one folder per additional bounded context
+│   ├── entities/
+│   ├── workflows/
+│   └── services/
+└── ...
+```
+
+**Rules**:
+
+- Every subdomain MUST have `entities/`, `workflows/`, and `services/` subdirectories.
+- `core/` is always present and owns identity and access entities.
+- New bounded contexts are added as peer subdomain folders (e.g. `client-management/`, `staffing/`).
+- Entity cross-references use root-relative links: `/domain/<subdomain>/entities/<entity>.md`.
+- `domain/README.md` MUST be kept up to date when subdomains or entities are added or renamed.
+- Spec files under `specs/` reference domain entities via the same root-relative paths.
+
 ## Definition of Done
 
 A feature is **Done** when ALL of the following are true:
@@ -169,4 +188,4 @@ this process:
 Use `CLAUDE.md` and `.ai/rules/` for runtime development guidance. The
 constitution governs principles; the rules files govern day-to-day conventions.
 
-**Version**: 1.0.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-04-20
+**Version**: 1.1.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-04-20

@@ -43,7 +43,7 @@ same client.
 
 ## Relationships
 
-- `sales_executive_id` → [User](/domain/user/user.md) (nullable)
-- `account_manager_id` → [User](/domain/user/user.md)
-- `client_representatives.user_id` → [User](/domain/user/user.md)
-- Referenced by [Opportunity](/domain/opportunity/opportunity.md) via `client_id`.
+- `sales_executive_id` → [User](/domain/core/entities/user.md) (nullable)
+- `account_manager_id` → [User](/domain/core/entities/user.md)
+- `client_representatives.user_id` → [User](/domain/core/entities/user.md)
+- Referenced by [Opportunity](/domain/staffing/entities/opportunity.md) via `client_id`.
