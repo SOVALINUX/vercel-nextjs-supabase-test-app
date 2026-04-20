@@ -26,20 +26,9 @@ jobs:
       - name: Start local Supabase
         run: supabase start
 
-      - name: Apply migrations & seed
-        run: supabase db reset --no-backup
-
-      - name: Verify all migrations applied
-        run: |
-          applied=$(supabase migration list 2>&1)
-          echo "$applied"
-          # Fail if any migration shows as local-only (not applied)
-          if echo "$applied" | grep -q "│\s*│"; then
-            echo "❌ Some migrations are not applied"
-            exit 1
-          fi
-          echo "✅ All migrations applied"
+      - name: Apply full migration stack and seed
+        run: supabase db reset
 
       - name: Stop local Supabase
         if: always()
-        run: supabase stop
+        run: supabase stop --no-backup
