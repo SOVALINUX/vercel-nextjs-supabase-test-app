@@ -44,7 +44,18 @@ begin
     (dev_user_id, role_am_id)
   on conflict do nothing;
 
-  -- Seed clients
+  -- Seed an employee record linked to the dev user
+  insert into public.employees
+    (id, first_name, last_name, email, job_title, department, employment_type, _created_by)
+  values
+    (dev_user_id, 'Dev', 'User', 'dev@example.com', 'Developer', 'Engineering', 'employee', dev_user_id)
+  on conflict (email) do nothing;
+
+  update public.users
+    set employee_id = dev_user_id
+  where id = dev_user_id and employee_id is null;
+
+  -- Seed clients (dev user as account manager, employee record already exists above)
   insert into public.clients (name, account_manager_id, _created_by) values
     ('Acme Corp',          dev_user_id, dev_user_id),
     ('Globex Corporation', dev_user_id, dev_user_id),
