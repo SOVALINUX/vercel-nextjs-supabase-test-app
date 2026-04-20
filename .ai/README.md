@@ -12,7 +12,7 @@ Single source of truth for AI rules and skills.
         └── SKILL.md
 ```
 
-**Rules**: git-conventions, typescript-rules, nextjs-rules
+**Rules**: git-conventions, typescript-rules, nextjs-rules, unit-testing
 
 **Skills**: do-a-pr, npm-update-dependency, finish-worktree
 
@@ -23,6 +23,7 @@ Single source of truth for AI rules and skills.
 ### Rules (auto-applied)
 
 - `typescript-rules` → `*.ts`, `*.tsx`
+- `unit-testing` → `*.test.ts`, `*.spec.ts`
 - `git-conventions` → all files
 - `nextjs-rules` → `app/**`, `components/**`
 

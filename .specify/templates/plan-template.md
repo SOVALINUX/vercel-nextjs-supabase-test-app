@@ -31,7 +31,14 @@
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-[Gates determined based on constitution file]
+Verify compliance with the [Replenishment Management System Constitution](.specify/memory/constitution.md):
+
+- [ ] **I. Spec-Driven** — `specs/<###-feature-name>/spec.md` exists and is committed
+- [ ] **II. Type Safety** — plan lists TypeScript strict types for all new entities; no `any`
+- [ ] **III. Security** — RLS policies identified for every new/modified table; auth boundaries documented
+- [ ] **IV. Test-First** — test plan documented; tests written before implementation starts
+- [ ] **V. SDLC** — feature branch follows `feature/<desc>` convention; release notes planned if user-facing
+- [ ] **VI. Simplicity** — no premature abstractions; Server Components used by default
 
 ## Project Structure
 
