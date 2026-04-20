@@ -75,8 +75,8 @@ Permission entity, and Group entity definitions. Key points:
 
 ## Current Subdomains
 
-| Subdomain           | Purpose                                          | Entities / References                    |
-| ------------------- | ------------------------------------------------ | ---------------------------------------- |
-| `core`              | Identity, authentication, RBAC, groups, comments | User, Role, Comment; permission-model.md |
-| `client-management` | Client records, contacts, and opportunities      | Client, Opportunity                      |
-| `staffing`          | Supply-demand matching and staffing workflows    | Employee                                 |
+| Subdomain           | Purpose                                          | Entities / References                           |
+| ------------------- | ------------------------------------------------ | ----------------------------------------------- |
+| `core`              | Identity, authentication, RBAC, groups, comments | User, Role, Group, Comment; permission-model.md |
+| `client-management` | Client records, contacts, and opportunities      | Client, Opportunity                             |
+| `staffing`          | Supply-demand matching and staffing workflows    | Employee                                        |

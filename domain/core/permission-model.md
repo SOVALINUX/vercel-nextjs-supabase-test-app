@@ -4,8 +4,20 @@
 
 Defines the resource-based permission system used by the Replenishment Management System.
 Permissions are expressed as URNs (Unique Resource Names) modelled after AWS ARN conventions.
-This document specifies the URN format, the `Permission` entity, and the `Group` entity used
-for permission aggregation and external-directory synchronisation.
+
+---
+
+## Entity Overview
+
+The following entities together form the permission system. Full field and rule definitions
+live in the `entities/` folder:
+
+| Entity         | File                                   | Role in permission system                                     |
+| -------------- | -------------------------------------- | ------------------------------------------------------------- |
+| **User**       | [entities/user.md](entities/user.md)   | Principal. Accumulates roles and group memberships.           |
+| **Role**       | [entities/role.md](entities/role.md)   | Named permission profile. Assigned to users via `user_roles`. |
+| **Group**      | [entities/group.md](entities/group.md) | User collection. Can hold permissions and nest other groups.  |
+| **Permission** | _(defined below)_                      | A single URN grant or deny assigned to a role or group.       |
 
 ---
 
@@ -73,73 +85,11 @@ permissions.
 
 ---
 
-## Group Entity
-
-### Purpose
-
-Groups aggregate users and can be assigned permissions directly. Groups support nesting (a group
-can contain other groups) and can be synchronised from an external directory (e.g. Active
-Directory / LDAP) or managed manually.
-
-### Extends
-
-[Base Entity](/domain/base-entity.md)
-
-### Fields
-
-| Field         | Type            | Nullable | Description                                                                                                  |
-| ------------- | --------------- | -------- | ------------------------------------------------------------------------------------------------------------ |
-| `name`        | String (unique) | No       | Display name of the group. E.g. `engineering-leads`.                                                         |
-| `description` | String          | Yes      | Human-readable explanation of the group's membership and purpose.                                            |
-| `source`      | Enum            | No       | How membership is managed: `manual` \| `active_directory` \| `ldap` \| `scim`.                               |
-| `sync_config` | JSON            | Yes      | Provider-specific synchronisation settings (e.g. AD group DN, SCIM filter). Required when `source ≠ manual`. |
-| `is_active`   | Boolean         | No       | Whether the group is active. Defaults to `true`.                                                             |
-
-### Bridge Table — `group_users`
-
-| Field      | Type             | Nullable | Description                        |
-| ---------- | ---------------- | -------- | ---------------------------------- |
-| `group_id` | UUID → groups.id | No       | The group receiving the member.    |
-| `user_id`  | UUID → users.id  | No       | The user being added to the group. |
-
-The pair `(group_id, user_id)` MUST be unique.
-
-### Bridge Table — `group_subgroups`
-
-Groups can nest arbitrarily. Permissions from child groups are inherited by parent groups'
-members (additive, bottom-up).
-
-| Field             | Type             | Nullable | Description           |
-| ----------------- | ---------------- | -------- | --------------------- |
-| `parent_group_id` | UUID → groups.id | No       | The containing group. |
-| `child_group_id`  | UUID → groups.id | No       | The nested group.     |
-
-Circular group nesting MUST be prevented at write time.
-
-### Bridge Table — `group_permissions`
-
-| Field           | Type                  | Nullable | Description                                      |
-| --------------- | --------------------- | -------- | ------------------------------------------------ |
-| `group_id`      | UUID → groups.id      | No       | The group being granted the permission.          |
-| `permission_id` | UUID → permissions.id | No       | The permission (URN) being granted to the group. |
-
-### Rules
-
-- Group membership is evaluated at request time; cached evaluation is acceptable with a
-  short TTL.
-- A user's effective permissions are the union of permissions from all directly assigned roles,
-  all directly assigned groups, and all ancestor groups (recursively), with deny URNs applied last.
-- External-directory groups (`source ≠ manual`) MUST NOT be edited via UI membership controls;
-  only `sync_config` may be updated.
-- Deleting a group that has active members MUST be prevented unless force-deleted by Super Admin.
-
----
-
 ## Permission Evaluation Order
 
-1. Collect all permissions from user's roles (via `role_permissions`).
-2. Collect all permissions from user's directly assigned groups (via `group_permissions`).
+1. Collect all permissions from the user's roles (via `role_permissions`).
+2. Collect all permissions from the user's directly assigned groups (via `group_permissions`).
 3. Recursively collect permissions from all ancestor groups.
-4. Allow URNs are unioned.
-5. Deny URNs (`!`-prefixed) from any source override all matching allows.
+4. Union all allow URNs.
+5. Apply deny URNs (`!`-prefixed) from any source — these override all matching allows.
 6. If no permission matches the requested resource+verb, access is **denied by default**.
