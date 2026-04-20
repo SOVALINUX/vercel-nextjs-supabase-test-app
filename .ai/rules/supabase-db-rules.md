@@ -14,7 +14,9 @@ alwaysApply: false
 - All schema changes go in `supabase/migrations/` as numbered SQL files (`YYYYMMDDHHmmss_<description>.sql`)
 - Create via `npm run db:migrate -- <name>` — never hand-craft the timestamp
 - Migrations are append-only: never edit a committed migration; create a new one instead
-- Always run `npm run db:reset` locally to verify the full migration stack applies cleanly
+- **Always run `npm run db:reset` locally before pushing** to verify the full stack applies cleanly
+- Exception: editing a migration is allowed only if it has never been pushed to any remote (i.e. it exists only on the current local branch and has not been deployed via `supabase db push`)
+- CI enforces this: `migrations-check.yml` runs `supabase db reset` on every PR that touches `supabase/`
 
 ## Row Level Security
 

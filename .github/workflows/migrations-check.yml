@@ -1,0 +1,45 @@
+name: Migration Stack Check
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/config.toml'
+      - 'supabase/seed/**'
+
+jobs:
+  migration-check:
+    name: Verify migration stack
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase
+        run: supabase start
+
+      - name: Apply migrations & seed
+        run: supabase db reset --no-backup
+
+      - name: Verify all migrations applied
+        run: |
+          applied=$(supabase migration list 2>&1)
+          echo "$applied"
+          # Fail if any migration shows as local-only (not applied)
+          if echo "$applied" | grep -q "│\s*│"; then
+            echo "❌ Some migrations are not applied"
+            exit 1
+          fi
+          echo "✅ All migrations applied"
+
+      - name: Stop local Supabase
+        if: always()
+        run: supabase stop
