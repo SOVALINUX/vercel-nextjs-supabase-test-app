@@ -42,7 +42,28 @@ begin
     ('Eve', 'Evans', 'eve.evans@company.internal',
      'Graduate Engineer', 'Engineering',
      'trainee', 'Software Engineering', 'Backend Engineer', 'Level 1',
-     '2025-09-01', sys_id)
+     '2025-09-01', sys_id),
+
+    -- Management chain above Siarhei (top-down so FK references resolve)
+    ('Balazs', 'Fejes', 'balazs.fejes@company.internal',
+     'CEO', 'Leadership',
+     'employee', 'Leadership', 'CEO', 'Level 7',
+     '2015-01-01', sys_id),
+
+    ('Viktar', 'Dvorkin', 'viktar.dvorkin@company.internal',
+     'VP Delivery', 'Delivery',
+     'employee', 'Delivery Management', 'VP Delivery', 'Level 6',
+     '2017-03-01', sys_id),
+
+    ('Dmitry', 'Razorionov', 'dmitry.razorionov@company.internal',
+     'Head of Delivery', 'Delivery',
+     'employee', 'Delivery Management', 'Head of Delivery', 'Level 5',
+     '2019-06-01', sys_id),
+
+    ('Siarhei', 'Nekhviadovich', 'siarhei.nekhviadovich@company.internal',
+     'Director, Delivery Management', 'Delivery',
+     'employee', 'Delivery Management', 'Director', 'B4',
+     '2020-01-01', sys_id)
   on conflict (email) do nothing;
 
   -- Wire up manager relationships (Alice → Bob, Carol, Eve; Bob → Dave)
@@ -59,5 +80,18 @@ begin
     set manager_id = (select id from public.employees where email = 'bob.baker@company.internal')
   where e.email = 'dave.davies@company.internal'
     and e.manager_id is null;
+
+  -- Management chain: Balazs → Viktar → Dmitry → Siarhei
+  update public.employees e
+    set manager_id = (select id from public.employees where email = 'balazs.fejes@company.internal')
+  where e.email = 'viktar.dvorkin@company.internal' and e.manager_id is null;
+
+  update public.employees e
+    set manager_id = (select id from public.employees where email = 'viktar.dvorkin@company.internal')
+  where e.email = 'dmitry.razorionov@company.internal' and e.manager_id is null;
+
+  update public.employees e
+    set manager_id = (select id from public.employees where email = 'dmitry.razorionov@company.internal')
+  where e.email = 'siarhei.nekhviadovich@company.internal' and e.manager_id is null;
 
 end $$;
