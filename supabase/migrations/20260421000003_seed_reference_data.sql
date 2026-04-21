@@ -19,45 +19,79 @@ begin
      employment_type, job_function_track, job_function_name, job_function_level,
      work_start_date, _created_by)
   values
-    ('Alice', 'Anderson', 'alice.anderson@company.internal',
+    ('Alice', 'Anderson', 'alice.anderson@company.com',
      'Engineering Manager', 'Engineering',
      'employee', 'Software Engineering', 'Engineering Manager', 'Level 5',
      '2020-03-01', sys_id),
 
-    ('Bob', 'Baker', 'bob.baker@company.internal',
+    ('Bob', 'Baker', 'bob.baker@company.com',
      'Senior Backend Engineer', 'Engineering',
      'employee', 'Software Engineering', 'Backend Engineer', 'Level 4',
      '2021-06-15', sys_id),
 
-    ('Carol', 'Chen', 'carol.chen@company.internal',
+    ('Carol', 'Chen', 'carol.chen@company.com',
      'Account Manager', 'Delivery',
      'employee', 'Delivery Management', 'Account Manager', 'Level 3',
      '2022-01-10', sys_id),
 
-    ('Dave', 'Davies', 'dave.davies@company.internal',
+    ('Dave', 'Davies', 'dave.davies@company.com',
      'Senior Consultant', 'Delivery',
      'contractor', 'Delivery Management', 'Senior Consultant', 'Level 4',
      '2023-04-01', sys_id),
 
-    ('Eve', 'Evans', 'eve.evans@company.internal',
+    ('Eve', 'Evans', 'eve.evans@company.com',
      'Graduate Engineer', 'Engineering',
      'trainee', 'Software Engineering', 'Backend Engineer', 'Level 1',
-     '2025-09-01', sys_id)
+     '2025-09-01', sys_id),
+
+    -- Management chain above Siarhei (top-down so FK references resolve)
+    ('Balazs', 'Fejes', 'balazs.fejes@company.com',
+     'CEO', 'Leadership',
+     'employee', 'Leadership', 'CEO', 'C',
+     '2015-01-01', sys_id),
+
+    ('Viktar', 'Dvorkin', 'viktar.dvorkin@company.com',
+     'VP Delivery', 'Delivery',
+     'employee', 'Delivery Management', 'VP Delivery', 'C',
+     '2017-03-01', sys_id),
+
+    ('Dmitry', 'Razorionov', 'dmitry.razorionov@company.com',
+     'Head of Delivery', 'Delivery',
+     'employee', 'Delivery Management', 'Head of Delivery', 'B5',
+     '2019-06-01', sys_id),
+
+    ('Siarhei', 'Nekhviadovich', 'siarhei.nekhviadovich@company.com',
+     'Director, Delivery Management', 'Delivery',
+     'employee', 'Delivery Management', 'Director', 'B4',
+     '2020-01-01', sys_id)
   on conflict (email) do nothing;
 
   -- Wire up manager relationships (Alice → Bob, Carol, Eve; Bob → Dave)
   -- Only set where not already assigned to keep re-runs idempotent.
   update public.employees e
-    set manager_id = (select id from public.employees where email = 'alice.anderson@company.internal')
+    set manager_id = (select id from public.employees where email = 'alice.anderson@company.com')
   where e.email in (
-    'bob.baker@company.internal',
-    'carol.chen@company.internal',
-    'eve.evans@company.internal'
+    'bob.baker@company.com',
+    'carol.chen@company.com',
+    'eve.evans@company.com'
   ) and e.manager_id is null;
 
   update public.employees e
-    set manager_id = (select id from public.employees where email = 'bob.baker@company.internal')
-  where e.email = 'dave.davies@company.internal'
+    set manager_id = (select id from public.employees where email = 'bob.baker@company.com')
+  where e.email = 'dave.davies@company.com'
     and e.manager_id is null;
+
+  -- Management chain: Balazs → Viktar → Dmitry → Siarhei
+  update public.employees e
+    set manager_id = (select id from public.employees where email = 'balazs.fejes@company.com')
+  where e.email = 'viktar.dvorkin@company.com' and e.manager_id is null;
+
+  update public.employees e
+    set manager_id = (select id from public.employees where email = 'viktar.dvorkin@company.com')
+  where e.email = 'dmitry.razorionov@company.com' and e.manager_id is null;
+
+  update public.employees e
+    set manager_id = (select id from public.employees where email = 'dmitry.razorionov@company.com')
+  where e.email = 'siarhei.nekhviadovich@company.com' and e.manager_id is null;
 
 end $$;
