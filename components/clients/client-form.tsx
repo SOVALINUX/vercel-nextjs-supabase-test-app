@@ -33,6 +33,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { clientFormSchema, normaliseClientPayload, type ClientFormValues, type ClientWithRelations, type UserPickerOption } from "@/lib/clients/types";
 
+const NONE = "__none__";
+
 interface ClientFormProps {
   client?: ClientWithRelations;
   users: UserPickerOption[];
@@ -42,6 +44,7 @@ interface ClientFormProps {
 
 export function ClientForm({ client, users, trigger, onSuccess }: ClientFormProps) {
   const [open, setOpen] = useState(false);
+  const [repSelectKey, setRepSelectKey] = useState(0);
   const isEdit = !!client;
 
   const form = useForm<ClientFormValues, unknown, ClientFormValues>({
@@ -62,6 +65,7 @@ export function ClientForm({ client, users, trigger, onSuccess }: ClientFormProp
   function addRepresentative(userId: string) {
     if (!representativeIds.includes(userId)) {
       form.setValue("representative_ids", [...representativeIds, userId]);
+      setRepSelectKey((k) => k + 1);
     }
   }
 
@@ -165,8 +169,8 @@ export function ClientForm({ client, users, trigger, onSuccess }: ClientFormProp
                 <FormItem>
                   <FormLabel>Sales Executive</FormLabel>
                   <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value ?? ""}
+                    onValueChange={(v) => field.onChange(v === NONE ? "" : v)}
+                    defaultValue={field.value || NONE}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -174,7 +178,7 @@ export function ClientForm({ client, users, trigger, onSuccess }: ClientFormProp
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value={NONE}>None</SelectItem>
                       {users.map((u) => (
                         <SelectItem key={u.id} value={u.id}>
                           {u.name}
@@ -211,7 +215,7 @@ export function ClientForm({ client, users, trigger, onSuccess }: ClientFormProp
                     </div>
                   )}
                   {availableReps.length > 0 && (
-                    <Select onValueChange={addRepresentative} value="">
+                    <Select key={repSelectKey} onValueChange={addRepresentative}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Add representative" />

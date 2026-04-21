@@ -68,6 +68,35 @@ begin
       and manager_id is null;
 
   --------------------------------------------------------------------------
+  -- User accounts for seed employees
+  -- Create auth + public.users rows so clients can reference them as account managers.
+  --------------------------------------------------------------------------
+  insert into auth.users (
+    id, email, created_at, updated_at,
+    raw_app_meta_data, raw_user_meta_data,
+    aud, role, encrypted_password
+  )
+  select
+    e.id, e.email, now(), now(),
+    '{"provider":"email","providers":["email"]}',
+    jsonb_build_object('name', e.first_name || ' ' || e.last_name),
+    'authenticated', 'authenticated', ''
+  from public.employees e
+  where e._deleted = false
+  on conflict (id) do nothing;
+
+  insert into public.users (id, name, email, employee_id, _created_by)
+  select
+    e.id,
+    e.first_name || ' ' || e.last_name,
+    e.email,
+    e.id,
+    sys_id
+  from public.employees e
+  where e._deleted = false
+  on conflict (id) do nothing;
+
+  --------------------------------------------------------------------------
   -- Clients (resolve existing rows seeded in local dev or previous runs)
   --------------------------------------------------------------------------
   insert into public.clients (name, account_manager_id, _created_by)
