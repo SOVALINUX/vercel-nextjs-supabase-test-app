@@ -5,71 +5,55 @@
 
 do $$
 declare
-  sys_id   uuid := '00000000-0000-0000-0000-000000000000';
-
-  -- employee ids
-  emp_alice  uuid := gen_random_uuid();
-  emp_bob    uuid := gen_random_uuid();
-  emp_carol  uuid := gen_random_uuid();
-  emp_dave   uuid := gen_random_uuid();
-  emp_eve    uuid := gen_random_uuid();
-
-  -- client ids
-  cli_acme   uuid;
-  cli_globex uuid;
-  cli_init   uuid;
+  sys_id uuid := '00000000-0000-0000-0000-000000000000';
 begin
-  --------------------------------------------------------------------------
-  -- Employees
-  --------------------------------------------------------------------------
   insert into public.employees
-    (id, first_name, last_name, email, job_title, department,
+    (first_name, last_name, email, job_title, department,
      employment_type, job_function_track, job_function_name, job_function_level,
      work_start_date, _created_by)
   values
-    (emp_alice, 'Alice', 'Anderson', 'alice.anderson@company.internal',
+    ('Alice', 'Anderson', 'alice.anderson@company.com',
      'Engineering Manager', 'Engineering',
      'employee', 'Software Engineering', 'Engineering Manager', 'Level 5',
      '2020-03-01', sys_id),
 
-    (emp_bob, 'Bob', 'Baker', 'bob.baker@company.internal',
+    ('Bob', 'Baker', 'bob.baker@company.com',
      'Senior Backend Engineer', 'Engineering',
      'employee', 'Software Engineering', 'Backend Engineer', 'Level 4',
      '2021-06-15', sys_id),
 
-    (emp_carol, 'Carol', 'Chen', 'carol.chen@company.internal',
+    ('Carol', 'Chen', 'carol.chen@company.com',
      'Account Manager', 'Delivery',
      'employee', 'Delivery Management', 'Account Manager', 'Level 3',
      '2022-01-10', sys_id),
 
-    (emp_dave, 'Dave', 'Davies', 'dave.davies@company.internal',
+    ('Dave', 'Davies', 'dave.davies@company.com',
      'Senior Consultant', 'Delivery',
      'contractor', 'Delivery Management', 'Senior Consultant', 'Level 4',
      '2023-04-01', sys_id),
 
-    (emp_eve, 'Eve', 'Evans', 'eve.evans@company.internal',
+    ('Eve', 'Evans', 'eve.evans@company.com',
      'Graduate Engineer', 'Engineering',
      'trainee', 'Software Engineering', 'Backend Engineer', 'Level 1',
      '2025-09-01', sys_id)
   on conflict (email) do nothing;
 
-  -- Re-resolve ids in case rows already existed (on conflict do nothing skips the insert)
-  select id into emp_alice from public.employees where email = 'alice.anderson@company.internal';
-  select id into emp_bob   from public.employees where email = 'bob.baker@company.internal';
-  select id into emp_carol from public.employees where email = 'carol.chen@company.internal';
+  -- Wire manager relationships (Alice → Bob, Carol, Eve; Bob → Dave)
+  update public.employees e
+    set manager_id = (select id from public.employees where email = 'alice.anderson@company.com')
+  where e.email in (
+    'bob.baker@company.com',
+    'carol.chen@company.com',
+    'eve.evans@company.com'
+  ) and e.manager_id is null;
 
-  -- Wire up manager relationships (Alice manages Bob, Carol, Eve; Bob manages Dave)
-  update public.employees set manager_id = emp_alice
-    where email in ('bob.baker@company.internal', 'carol.chen@company.internal', 'eve.evans@company.internal')
-      and manager_id is null;
-
-  update public.employees set manager_id = emp_bob
-    where email = 'dave.davies@company.internal'
-      and manager_id is null;
+  update public.employees e
+    set manager_id = (select id from public.employees where email = 'bob.baker@company.com')
+  where e.email = 'dave.davies@company.com' and e.manager_id is null;
 
   --------------------------------------------------------------------------
-  -- User accounts for seed employees
-  -- Create auth + public.users rows so clients can reference them as account managers.
+  -- User account for Carol Chen only (alice/bob handled by migration 000005).
+  -- Carol is needed here as account_manager_id FK for the seed clients below.
   --------------------------------------------------------------------------
   insert into auth.users (
     id, email, created_at, updated_at,
@@ -82,7 +66,7 @@ begin
     jsonb_build_object('name', e.first_name || ' ' || e.last_name),
     'authenticated', 'authenticated', ''
   from public.employees e
-  where e._deleted = false
+  where e.email = 'carol.chen@company.com'
   on conflict (id) do nothing;
 
   insert into public.users (id, name, email, employee_id, _created_by)
@@ -93,29 +77,21 @@ begin
     e.id,
     sys_id
   from public.employees e
-  where e._deleted = false
+  where e.email = 'carol.chen@company.com'
   on conflict (id) do nothing;
 
   --------------------------------------------------------------------------
-  -- Clients (resolve existing rows seeded in local dev or previous runs)
+  -- Clients
   --------------------------------------------------------------------------
   insert into public.clients (name, account_manager_id, _created_by)
-  values
-    ('Acme Corp',          emp_carol, sys_id),
-    ('Globex Corporation', emp_carol, sys_id),
-    ('Initech',            emp_carol, sys_id)
-  on conflict do nothing;
-
-  select id into cli_acme   from public.clients where name = 'Acme Corp'          and _deleted = false limit 1;
-  select id into cli_globex from public.clients where name = 'Globex Corporation' and _deleted = false limit 1;
-  select id into cli_init   from public.clients where name = 'Initech'            and _deleted = false limit 1;
-
-  -- Assign Bob and Dave as representatives on Acme
-  if cli_acme is not null then
-    insert into public.client_representatives (client_id, user_id)
-    select cli_acme, u.id from public.users u
-    where u.employee_id in (emp_bob, emp_dave)
-    on conflict do nothing;
-  end if;
+  select v.name, (select id from public.employees where email = 'carol.chen@company.com'), sys_id
+  from (values
+    ('Acme Corp'),
+    ('Globex Corporation'),
+    ('Initech')
+  ) as v(name)
+  where not exists (
+    select 1 from public.clients c where c.name = v.name and c._deleted = false
+  );
 
 end $$;

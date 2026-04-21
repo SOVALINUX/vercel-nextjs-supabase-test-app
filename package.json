@@ -12,7 +12,9 @@
     "db:migrate": "supabase migration new",
     "db:push": "supabase db push",
     "db:diff": "supabase db diff",
-    "db:types": "supabase gen types typescript --local > lib/supabase/database.types.ts"
+    "db:types": "supabase gen types typescript --local > lib/supabase/database.types.ts",
+    "type-check": "tsc --noEmit",
+    "test": "echo \"No tests yet\" && exit 0"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
