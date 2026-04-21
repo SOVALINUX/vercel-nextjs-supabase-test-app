@@ -1,0 +1,9 @@
+{
+  "setup-worktree": [
+    "git fetch",
+    "git merge origin/main",
+    "npm ci",
+    "npm run prepare",
+    "for f in $ROOT_WORKTREE_PATH/.env.*; do [ -f \"$f\" ] && cp \"$f\" \"$(basename $f)\"; done"
+  ]
+}
