@@ -1,0 +1,33 @@
+name: Migration Stack Check
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/config.toml'
+      - 'supabase/seed/**'
+
+jobs:
+  migration-check:
+    name: Verify migration stack
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase and apply migrations + seed
+        # supabase start initialises the DB, runs all migrations, and seeds.
+        # It is the canonical way to verify the full stack from scratch.
+        run: supabase start
+
+      - name: Stop local Supabase
+        if: always()
+        run: supabase stop --no-backup
