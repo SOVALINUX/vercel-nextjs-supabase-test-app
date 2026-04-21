@@ -2,18 +2,11 @@
 -- Idempotent: all inserts use ON CONFLICT DO NOTHING.
 -- Uses the system user (id = 00000000-0000-0000-0000-000000000000) seeded in migration 000003
 -- as _created_by for all records.
---
--- NOTE: clients.account_manager_id references public.users, not employees.
--- Employees seeded here have no user accounts, so clients are omitted from this migration —
--- client data is environment-specific and belongs in application seeds or manual setup.
 
 do $$
 declare
   sys_id uuid := '00000000-0000-0000-0000-000000000000';
 begin
-  --------------------------------------------------------------------------
-  -- Employees
-  --------------------------------------------------------------------------
   insert into public.employees
     (first_name, last_name, email, job_title, department,
      employment_type, job_function_track, job_function_name, job_function_level,
@@ -42,32 +35,10 @@ begin
     ('Eve', 'Evans', 'eve.evans@company.com',
      'Graduate Engineer', 'Engineering',
      'trainee', 'Software Engineering', 'Backend Engineer', 'Level 1',
-     '2025-09-01', sys_id),
-
-    -- Management chain above Siarhei (top-down so FK references resolve)
-    ('Balazs', 'Fejes', 'balazs.fejes@company.com',
-     'CEO', 'Leadership',
-     'employee', 'Leadership', 'CEO', 'C',
-     '2015-01-01', sys_id),
-
-    ('Viktar', 'Dvorkin', 'viktar.dvorkin@company.com',
-     'VP Delivery', 'Delivery',
-     'employee', 'Delivery Management', 'VP Delivery', 'C',
-     '2017-03-01', sys_id),
-
-    ('Dmitry', 'Razorionov', 'dmitry.razorionov@company.com',
-     'Head of Delivery', 'Delivery',
-     'employee', 'Delivery Management', 'Head of Delivery', 'B5',
-     '2019-06-01', sys_id),
-
-    ('Siarhei', 'Nekhviadovich', 'siarhei.nekhviadovich@company.com',
-     'Director, Delivery Management', 'Delivery',
-     'employee', 'Delivery Management', 'Director', 'B4',
-     '2020-01-01', sys_id)
+     '2025-09-01', sys_id)
   on conflict (email) do nothing;
 
-  -- Wire up manager relationships (Alice → Bob, Carol, Eve; Bob → Dave)
-  -- Only set where not already assigned to keep re-runs idempotent.
+  -- Wire manager relationships (Alice → Bob, Carol, Eve; Bob → Dave)
   update public.employees e
     set manager_id = (select id from public.employees where email = 'alice.anderson@company.com')
   where e.email in (
@@ -78,20 +49,6 @@ begin
 
   update public.employees e
     set manager_id = (select id from public.employees where email = 'bob.baker@company.com')
-  where e.email = 'dave.davies@company.com'
-    and e.manager_id is null;
-
-  -- Management chain: Balazs → Viktar → Dmitry → Siarhei
-  update public.employees e
-    set manager_id = (select id from public.employees where email = 'balazs.fejes@company.com')
-  where e.email = 'viktar.dvorkin@company.com' and e.manager_id is null;
-
-  update public.employees e
-    set manager_id = (select id from public.employees where email = 'viktar.dvorkin@company.com')
-  where e.email = 'dmitry.razorionov@company.com' and e.manager_id is null;
-
-  update public.employees e
-    set manager_id = (select id from public.employees where email = 'dmitry.razorionov@company.com')
-  where e.email = 'siarhei.nekhviadovich@company.com' and e.manager_id is null;
+  where e.email = 'dave.davies@company.com' and e.manager_id is null;
 
 end $$;
